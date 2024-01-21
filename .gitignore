@@ -1,0 +1,6 @@
+.vscode/
+web/
+
+main
+main.o
+shell.html
