@@ -6,22 +6,23 @@
 #include <time.h>
 #include <unistd.h>
 
-inline constexpr int WIDTH = 800;
-inline constexpr int HEIGHT = 800;
-inline constexpr int FPS = 60;
-inline constexpr int CELL_SIZE = 38;
-inline constexpr int CELL_WIDTH = 19;
-inline constexpr int CELL_HEIGHT = 19;
-inline constexpr char TITLE[] = "Snake";
-inline constexpr Color BACKGROUND_COLOR = {87, 138, 52, 255};
-inline constexpr Color BOARD_COLOR_1 = {170, 215, 81, 255};
-inline constexpr Color BOARD_COLOR_2 = {162, 209, 73, 255};
-inline constexpr Color SNAKE_COLOR = {63, 108, 222, 255};
-inline constexpr Color APPLE_COLOR = {231, 71, 29, 255};
-inline constexpr KeyboardKey RELOAD = KEY_R;
+constexpr int WIDTH = 800;
+constexpr int HEIGHT = 800;
+constexpr int FPS = 60;
+constexpr int TPS = 7; // set difficulty with this
+constexpr int CELL_SIZE = 38;
+constexpr int CELL_WIDTH = 19;
+constexpr int CELL_HEIGHT = 19;
+constexpr char TITLE[] = "Snake";
+constexpr Color BACKGROUND_COLOR = {87, 138, 52, 255};
+constexpr Color BOARD_COLOR_1 = {170, 215, 81, 255};
+constexpr Color BOARD_COLOR_2 = {162, 209, 73, 255};
+constexpr Color SNAKE_COLOR = {63, 108, 222, 255};
+constexpr Color APPLE_COLOR = {231, 71, 29, 255};
+constexpr KeyboardKey RELOAD = KEY_R;
 
 unsigned framesElapsed;
-unsigned gameOver;
+bool gameOver;
 
 std::deque<int> sx, sy;
 int appleX, appleY, dx, dy;
@@ -133,7 +134,7 @@ int main() {
             dx = 1;
         }
 
-        if (framesElapsed % (FPS >> 3) == 0) {
+        if (framesElapsed % (FPS / TPS) == 0) {
             sx.push_front(sx.front() + dx);
             sy.push_front(sy.front() + dy);
             
@@ -160,20 +161,21 @@ int main() {
                 sy.pop_back();
             }
 
+            // epic win (you get nothing)
             if (sx.size() == CELL_WIDTH * CELL_HEIGHT) {
-                gameOver = 2;
-            }
-
-            for (int i = 1; i < sx.size(); i++) {
-                if (sx.front() == sx[i] && sy.front() == sy[i]) {
-                    gameOver = 1;
-                    break;
-                }
+                gameOver = 1;
             }
 
             if (sx.front() < 0 || sy.front() < 0 || 
                 sx.front() >= CELL_WIDTH || sy.front() >= CELL_HEIGHT) {
                 gameOver = 1;
+            }
+             
+            for (int i = 1; i < sx.size(); i++) {
+                if (sx.front() == sx[i] && sy.front() == sy[i]) {
+                    gameOver = 1;
+                    break;
+                }
             }
         }
 
