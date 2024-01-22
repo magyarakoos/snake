@@ -1,0 +1,51 @@
+#!/bin/bash
+
+rl_dir="/home/akos/raylib"
+dev_dir="./web"
+prod_dir="/home/akos/repos/magyarakoos.github.io/snake"
+
+# Check if there is exactly one argument
+if [ "$#" -ne 1 ]; then
+    echo "Usage: $0 <dev/prod>"
+    exit 1
+fi
+
+# Check the argument value
+case "$1" in
+    "dev")
+        output_dir="$dev_dir"
+        ;;
+    "prod")
+        output_dir="$prod_dir"
+        
+        cp "$dev_dir/snake.html" "$prod_dir/"
+        ;;
+    *)
+        echo "Invalid argument. Exiting."
+        exit 1
+        ;;
+esac
+
+emcc -o \
+    "$output_dir/shell.html" \
+    src/*.cpp \
+    -Wall \
+    -std=c++17 \
+    -D_DEFAULT_SOURCE \
+    -Wno-missing-braces \
+    -Wunused-result \
+    -Os \
+    -I. \
+    -I "$rl_dir/src" \
+    -I "$rl_dir/src/external" \
+    -L. \
+    -L "$rl_dir/src" \
+    -s USE_GLFW=3 \
+    -s ASYNCIFY \
+    -s TOTAL_MEMORY=67108864 \
+    -s FORCE_FILESYSTEM=1 \
+    --shell-file shell.html \
+    "$rl_dir/src/libraylib.a" \
+    -DPLATFORM_WEB \
+    -s 'EXPORTED_FUNCTIONS=["_free","_malloc","_main"]' \
+    -s EXPORTED_RUNTIME_METHODS=ccall

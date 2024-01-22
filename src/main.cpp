@@ -13,16 +13,17 @@ constexpr int TPS = 7; // set difficulty with this
 constexpr int CELL_SIZE = 38;
 constexpr int CELL_WIDTH = 19;
 constexpr int CELL_HEIGHT = 19;
+constexpr float SQ_2 = 1.41421356237;
 constexpr char TITLE[] = "Snake";
 constexpr Color BACKGROUND_COLOR = {87, 138, 52, 255};
 constexpr Color BOARD_COLOR_1 = {170, 215, 81, 255};
 constexpr Color BOARD_COLOR_2 = {162, 209, 73, 255};
 constexpr Color SNAKE_COLOR = {63, 108, 222, 255};
 constexpr Color APPLE_COLOR = {231, 71, 29, 255};
-constexpr KeyboardKey RELOAD = KEY_R;
 
 unsigned framesElapsed;
 bool gameOver;
+bool started;
 
 std::deque<int> sx, sy;
 int appleX, appleY, dx, dy;
@@ -106,35 +107,61 @@ int main() {
             APPLE_COLOR
         );
 
+        if (!started) {
+            DrawRectangle(0, 0, WIDTH, HEIGHT, {0, 0, 0, 100});
+
+            DrawTriangle(
+                {
+                    WIDTH / 2 - SQ_2 * CELL_SIZE,
+                    HEIGHT / 2 - SQ_2 * CELL_SIZE
+                },
+                {
+                    WIDTH / 2 - SQ_2 * CELL_SIZE,
+                    HEIGHT / 2 + SQ_2 * CELL_SIZE
+                },
+                {
+                    WIDTH / 2 + SQ_2 * CELL_SIZE,
+                    HEIGHT / 2
+                },
+                WHITE
+            );
+        }
+
         EndDrawing();
 
-        if (IsKeyPressed(RELOAD)) {
-            Reload();
+        if (!started && IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+            started = 1;
         }
 
-        bool up    = IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP),
-             down  = IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN),
-             left  = IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT),
-             right = IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT);
-        
-        if (up && (dx == -1 || dx == 1)) {
-            dx = 0;
-            dy = -1;
+        if (!started) {
+            continue;
         }
-        else if (down && (dx == -1 || dx == 1)) {
-            dx = 0;
-            dy = 1;
-        }
-        else if (left && (dy == -1 || dy == 1)) {
-            dy = 0;
-            dx = -1;
-        }
-        else if (right && (dy == -1 || dy == 1)) {
-            dy = 0;
-            dx = 1;
-        }
+
+        bool up    = IsKeyDown(KEY_W) || IsKeyDown(KEY_UP),
+             down  = IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN),
+             left  = IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT),
+             right = IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT);
 
         if (framesElapsed % (FPS / TPS) == 0) {
+
+            if (up && (dx == -1 || dx == 1)) {
+                dx = 0;
+                dy = -1;
+            }
+            else if (down && (dx == -1 || dx == 1)) {
+                dx = 0;
+                dy = 1;
+            }
+            else if (left && (dy == -1 || dy == 1)) {
+                dy = 0;
+                dx = -1;
+            }
+            else if (right && (dy == -1 || dy == 1)) {
+                dy = 0;
+                dx = 1;
+            }
+
+
             sx.push_front(sx.front() + dx);
             sy.push_front(sy.front() + dy);
             
@@ -170,7 +197,13 @@ int main() {
                 sx.front() >= CELL_WIDTH || sy.front() >= CELL_HEIGHT) {
                 gameOver = 1;
             }
-             
+
+
+            for (int i = 0; i < sx.size(); i++) {
+                std::cerr << sx[i] << ' ';
+            }
+            std::cerr << '\n';
+
             for (int i = 1; i < sx.size(); i++) {
                 if (sx.front() == sx[i] && sy.front() == sy[i]) {
                     gameOver = 1;
