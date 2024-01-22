@@ -1,5 +1,5 @@
 #include <queue>
-#include <array>
+#include <iostream>
 #include <stdlib.h>
 #include <raylib.h>
 #include <assert.h>
@@ -22,25 +22,11 @@ inline constexpr KeyboardKey RELOAD = KEY_R;
 unsigned framesElapsed;
 unsigned gameOver;
 
-std::deque<std::array<int, 2>> snake;
+std::deque<int> sx, sy;
 int appleX, appleY, dx, dy;
 
 int AsIndex(int x, int y) {
     return y * CELL_WIDTH + x;
-}
-
-void PutApple() {
-    int rx = rand() % CELL_WIDTH,
-        ry = rand() % CELL_HEIGHT;
-    
-    for (auto [x, y] : snake) {
-        if (rx == x && ry == y) {
-            PutApple();
-        }
-    }
-
-    appleX = rx;
-    appleY = ry;
 }
 
 void Reload() {
@@ -50,8 +36,19 @@ void Reload() {
     dx = 1;
     dy = 0;
 
-    snake = {{7, 9}, {6, 9}, {5, 9}};
-    PutApple();
+    sx = {7, 6, 5};
+    sy = {9, 9, 9};
+
+    while (1) {
+        int rx = rand() % CELL_WIDTH,
+            ry = rand() % CELL_HEIGHT;
+        
+        if (ry != 9 && rx != 5 && rx != 6 && rx != 7) {
+            appleX = rx;
+            appleY = ry;
+            break;
+        }
+    }
 }
 
 int main() {
@@ -60,7 +57,7 @@ int main() {
 
     assert(!GetWindowHandle());
 
-    SetTargetFPS(FPS);
+    SetTargetFPS(60);
     InitWindow(WIDTH, HEIGHT, TITLE);
 
     Reload();
@@ -83,10 +80,10 @@ int main() {
             }
         }
 
-        for (auto [x, y] : snake) {
+        for (int i = 0; i < sx.size(); i++) {
             DrawRectangle(
-                (x + 1) * CELL_SIZE,
-                (y + 1) * CELL_SIZE,
+                (sx[i] + 1) * CELL_SIZE,
+                (sy[i] + 1) * CELL_SIZE,
                 CELL_SIZE,
                 CELL_SIZE,
                 SNAKE_COLOR
@@ -103,23 +100,73 @@ int main() {
 
         EndDrawing();
 
+        std::cerr << sx.size() << '\n';
+
         if (IsKeyPressed(RELOAD)) {
             Reload();
-            goto nextTick;
+            continue;
         }
 
-        snake.push_front({snake.front()[0] + dx, snake.front()[1] + dy});
-
-        if (snake.front()[0] == appleX && snake.front()[1] == appleY) {
-            PutApple();
-        } else {
-            snake.pop_back();
+        bool up    = IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP),
+             down  = IsKeyPressed(KEY_S) || IsKeyPressed(KEY_DOWN),
+             left  = IsKeyPressed(KEY_A) || IsKeyPressed(KEY_LEFT),
+             right = IsKeyPressed(KEY_D) || IsKeyPressed(KEY_RIGHT);
+        
+        if (up && (dx == -1 || dx == 1)) {
+            dx = 0;
+            dy = -1;
+        }
+        else if (down && (dx == -1 || dx == 1)) {
+            dx = 0;
+            dy = 1;
+        }
+        else if (left && (dy == -1 || dy == 1)) {
+            dy = 0;
+            dx = -1;
+        }
+        else if (right && (dy == -1 || dy == 1)) {
+            dy = 0;
+            dx = 1;
         }
 
-        for (int i = 1; i < snake.size(); i++) {
-            if (snake.front()[0] == snake[i][0] && snake.front()[1] == snake[i][1]) {
+        if (framesElapsed % (FPS >> 3) == 0) {
+            sx.push_front(sx.front() + dx);
+            sy.push_front(sy.front() + dy);
+            
+            if (sx.front() == appleX && sy.front() == appleY) {
+                while (1) {
+                    int rx = rand() % CELL_WIDTH;
+                    int ry = rand() % CELL_HEIGHT;
+                    int i;
+
+                    for ( i = 0; i < sx.size(); i++) {
+                        if (sx[i] == rx && sy[i] == ry) {
+                            break; 
+                        }
+                    }
+
+                    if (i == sx.size()) {
+                        appleX = rx;
+                        appleY = ry;
+                        break;
+                    }
+                }
+            } else {
+                sx.pop_back();
+                sy.pop_back();
+            }
+
+            for (int i = 1; i < sx.size(); i++) {
+                if (sx.front() == sx[i] && sy.front() == sy[i]) {
+                    Reload();
+                    goto nextTick;
+                }
+            }
+
+            if (sx.front() < 0 || sy.front() < 0 || 
+                sx.front() >= CELL_WIDTH || sy.front() >= CELL_HEIGHT) {
                 Reload();
-                goto nextTick;
+                continue;
             }
         }
 
