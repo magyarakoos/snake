@@ -4,6 +4,7 @@
 #include <raylib.h>
 #include <assert.h>
 #include <time.h>
+#include <unistd.h>
 
 inline constexpr int WIDTH = 800;
 inline constexpr int HEIGHT = 800;
@@ -63,6 +64,12 @@ int main() {
     Reload();
 
     while (!WindowShouldClose()) {
+        if (gameOver) {
+            sleep(1);
+            Reload();
+            continue;
+        }
+
         BeginDrawing();
         ClearBackground(BACKGROUND_COLOR);
 
@@ -100,11 +107,8 @@ int main() {
 
         EndDrawing();
 
-        std::cerr << sx.size() << '\n';
-
         if (IsKeyPressed(RELOAD)) {
             Reload();
-            continue;
         }
 
         bool up    = IsKeyPressed(KEY_W) || IsKeyPressed(KEY_UP),
@@ -156,23 +160,24 @@ int main() {
                 sy.pop_back();
             }
 
+            if (sx.size() == CELL_WIDTH * CELL_HEIGHT) {
+                gameOver = 2;
+            }
+
             for (int i = 1; i < sx.size(); i++) {
                 if (sx.front() == sx[i] && sy.front() == sy[i]) {
-                    Reload();
-                    goto nextTick;
+                    gameOver = 1;
+                    break;
                 }
             }
 
             if (sx.front() < 0 || sy.front() < 0 || 
                 sx.front() >= CELL_WIDTH || sy.front() >= CELL_HEIGHT) {
-                Reload();
-                continue;
+                gameOver = 1;
             }
         }
 
-        framesElapsed += !gameOver;
-
-        nextTick:continue;
+        framesElapsed++;
     }
 
     assert(GetWindowHandle());
