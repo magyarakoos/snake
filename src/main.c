@@ -10,6 +10,8 @@ unsigned framesElapsed;
 bool gameOver;
 bool started;
 
+typedef struct Node Node;
+
 struct Node {
     int x, y;
     Node* next;
