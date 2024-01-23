@@ -10,10 +10,10 @@ unsigned framesElapsed;
 bool gameOver;
 bool started;
 
-typedef struct {
+struct Node {
     int x, y;
     Node* next;
-} Node;
+};
 
 Node* snake;
 int appleX, appleY, dx, dy, size;
@@ -91,7 +91,7 @@ int main() {
                     (i + 1) * CELL_SIZE,
                     CELL_SIZE,
                     CELL_SIZE,
-                    AsIndex(j, i) & 1 ? 
+                    i * CELL_WIDTH + j & 1 ? 
                         BOARD_COLOR_2 :
                         BOARD_COLOR_1
                 );
