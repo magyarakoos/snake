@@ -1,4 +1,4 @@
 #!/bin/bash
 
-g++ -o main src/*.cpp -lraylib
+gcc -o main main.c -lraylib
 ./main
