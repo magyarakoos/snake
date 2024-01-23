@@ -23,17 +23,15 @@ void SetApple() {
         int rx = rand() % CELL_WIDTH;
         int ry = rand() % CELL_HEIGHT;
 
-        Node* currX = rx;
-        Node* currY = ry;
-        while (currX) {
-            if (currX->x == rx && currY->x == ry) {
+        Node* curr = snake;
+        while (curr) {
+            if (curr->x == rx && curr->y == ry) {
                 break;
             }
-            currX = currX->next;
-            currY = currY->next;
+            curr = curr->next;
         }
 
-        if (!currX) {
+        if (!curr) {
             appleX = rx;
             appleY = ry;
             break;
