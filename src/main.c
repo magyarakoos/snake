@@ -143,7 +143,7 @@ int main() {
 
         EndDrawing();
 
-        if (!started && IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
             started = 1;
         }
 
