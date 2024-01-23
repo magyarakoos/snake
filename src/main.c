@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <raylib.h>
 #include <assert.h>
@@ -48,19 +49,18 @@ void Reload() {
 
     dx = 1;
     dy = 0;
-    
-    int ax[] = {7, 6, 5}, 
-        ay[] = {9, 9, 9};
-    
+
+    // ooc: what the fuck
     snake = (Node*)malloc(sizeof(Node));
-    Node* curr = snake;
-    for (int i = 0; i < sizeof(ax) / 4; i++) {
-        curr->next = (Node*)malloc(sizeof(Node));
-        curr = curr->next;
-        curr->x = ax[i];
-        curr->y = ay[i];
-    }
-    curr->next = NULL;
+    snake->x = 7;
+    snake->y = 9;
+    snake->next = (Node*)malloc(sizeof(Node));
+    snake->next->x = 6;
+    snake->next->y = 9;
+    snake->next->next = (Node*)malloc(sizeof(Node));
+    snake->next->next->x = 5;
+    snake->next->next->y = 9;
+    snake->next->next->next = NULL;
 
     SetApple();
 }
@@ -187,7 +187,13 @@ int main() {
             if (snake->x == appleX && snake->y == appleY) {
                 SetApple();
             } else {
-                /// TODO: pop both
+                Node* curr = snake;
+                Node* prev = NULL;
+                while (curr->next) {
+                    prev = curr;
+                    curr = curr->next;
+                }
+                prev->next = NULL;
                 size--;
             }
 
