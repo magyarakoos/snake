@@ -6,20 +6,7 @@
 #include <time.h>
 #include <unistd.h>
 
-constexpr int WIDTH = 800;
-constexpr int HEIGHT = 800;
-constexpr int FPS = 60;
-constexpr int TPS = 7; // set difficulty with this
-constexpr int CELL_SIZE = 38;
-constexpr int CELL_WIDTH = 19;
-constexpr int CELL_HEIGHT = 19;
-constexpr float SQ_2 = 1.41421356237;
-constexpr char TITLE[] = "Snake";
-constexpr Color BACKGROUND_COLOR = {87, 138, 52, 255};
-constexpr Color BOARD_COLOR_1 = {170, 215, 81, 255};
-constexpr Color BOARD_COLOR_2 = {162, 209, 73, 255};
-constexpr Color SNAKE_COLOR = {63, 108, 222, 255};
-constexpr Color APPLE_COLOR = {231, 71, 29, 255};
+#include "settings.h"
 
 unsigned framesElapsed;
 bool gameOver;
